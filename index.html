@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#07090c">
+  <title>Туман Владивостока</title>
+  <meta name="description" content="Уличная игра: открывай карту Владивостока ногами и бери задания у жёлтых меток">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" href="icons/favicon.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Туман">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Russo+One&family=Rubik:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="vendor/maplibre/maplibre-gl.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="map"></div>
+
+  <!-- HUD: верхний правый угол, как в GTA -->
+  <header class="hud" aria-live="polite">
+    <div class="hud__cash" id="hud-cash">$0</div>
+    <div class="hud__row">
+      <span class="hud__label">Исследовано</span>
+      <span class="hud__value" id="hud-explored">0.00 км²</span>
+    </div>
+    <div class="hud__row">
+      <span class="hud__label">Уважение</span>
+      <span class="hud__stars" id="hud-rep">☆☆☆☆☆</span>
+    </div>
+    <div class="hud__row" id="hud-district-row" hidden>
+      <span class="hud__label" id="hud-district">Район</span>
+      <span class="hud__value" id="hud-district-pct">—</span>
+    </div>
+  </header>
+
+  <!-- Режим передвижения -->
+  <div class="modebar">
+    <button id="btn-mode" class="chip" type="button">Режим: симуляция</button>
+    <button id="btn-center" class="chip" type="button" title="Центрировать на игроке">◎</button>
+    <button id="btn-log" class="chip" type="button">Задания</button>
+    <button id="btn-install" class="chip chip--accent" type="button" hidden>Установить</button>
+  </div>
+
+  <!-- Радар (клик — центрировать карту на игроке) -->
+  <canvas class="radar" id="radar" role="img" aria-label="Радар: открытая территория и метки вокруг"></canvas>
+
+  <!-- Стрелка на цель, когда она за краем экрана -->
+  <div class="edge-arrow" id="edge-arrow" hidden aria-hidden="true">
+    <div class="edge-arrow__icon"></div>
+    <span class="edge-arrow__dist"></span>
+  </div>
+
+  <!-- Название района при входе в него, как в GTA -->
+  <div class="area-name" id="area-name" hidden aria-live="polite"></div>
+
+  <!-- Текущая цель -->
+  <div class="objective" id="objective" hidden>
+    <div class="objective__title" id="obj-title"></div>
+    <div class="objective__text" id="obj-text"></div>
+    <div class="objective__meta" id="obj-meta"></div>
+  </div>
+
+  <!-- Субтитры/диалоги -->
+  <div class="subtitle" id="subtitle" hidden></div>
+
+  <!-- Крупная надпись «МИССИЯ ПРОЙДЕНА» -->
+  <div class="banner" id="banner" hidden>
+    <div class="banner__big" id="banner-big"></div>
+    <div class="banner__small" id="banner-small"></div>
+  </div>
+
+  <!-- Карточка предложения квеста -->
+  <div class="offer" id="offer" hidden>
+    <div class="offer__giver" id="offer-giver"></div>
+    <h2 class="offer__title" id="offer-title"></h2>
+    <p class="offer__intro" id="offer-intro"></p>
+    <div class="offer__reward" id="offer-reward"></div>
+    <div class="offer__actions">
+      <button id="offer-accept" class="btn btn--primary" type="button">Взять</button>
+      <button id="offer-decline" class="btn" type="button">Позже</button>
+    </div>
+  </div>
+
+  <!-- Журнал / настройки -->
+  <aside class="panel" id="panel" hidden>
+    <div class="panel__head">
+      <h2>Журнал</h2>
+      <button id="panel-close" class="btn" type="button">Закрыть</button>
+    </div>
+    <section>
+      <h3>Активное</h3>
+      <div id="log-active" class="log"></div>
+    </section>
+    <section>
+      <h3>Пройдено</h3>
+      <div id="log-done" class="log"></div>
+    </section>
+    <section>
+      <h3>Районы</h3>
+      <div id="log-districts" class="log"></div>
+    </section>
+    <section>
+      <h3>Генератор сюжетов</h3>
+      <label class="field">
+        <span>Источник квестов</span>
+        <select id="set-provider">
+          <option value="builtin">Встроенный (сюжеты от Claude + шаблоны)</option>
+          <option value="ollama">Локальная модель (Ollama)</option>
+        </select>
+      </label>
+      <label class="field">
+        <span>Ollama URL</span>
+        <input id="set-ollama-url" type="text" value="http://localhost:11434">
+      </label>
+      <label class="field">
+        <span>Модель</span>
+        <input id="set-ollama-model" type="text" value="qwen2.5:7b">
+      </label>
+      <p class="hint">Если локальная модель недоступна, игра сама вернётся к встроенному генератору.</p>
+    </section>
+    <section>
+      <h3>Офлайн</h3>
+      <p class="hint">Карта вокруг тебя сохранится на телефоне: играть можно будет даже без связи. Около 20 файлов, меньше 1 МБ.</p>
+      <div class="panel__actions">
+        <button id="btn-offline" class="btn" type="button">Сохранить карту в радиусе 1 км</button>
+      </div>
+    </section>
+    <section>
+      <h3>Сохранение</h3>
+      <div class="panel__actions">
+        <button id="btn-reveal-debug" class="btn" type="button">Отладка: рассеять 300 м</button>
+        <button id="btn-reset" class="btn btn--danger" type="button">Сбросить прогресс</button>
+      </div>
+    </section>
+  </aside>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <div class="help" id="help">
+    <b>Симуляция:</b> WASD / стрелки — идти, Shift — бежать, клик по карте — идти к точке.
+    <b>GPS:</b> переключи режим и просто гуляй.
+  </div>
+
+  <script src="vendor/leaflet/leaflet.js"></script>
+  <script src="vendor/maplibre/maplibre-gl.js"></script>
+  <script src="vendor/maplibre/leaflet-maplibre-gl.js"></script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

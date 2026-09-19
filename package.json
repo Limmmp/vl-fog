@@ -1,0 +1,10 @@
+{
+  "name": "vl-fog",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Туман Владивостока — уличная игра с туманом войны и генеративными квестами на реальной карте",
+  "scripts": {
+    "start": "npx --yes serve -l 3000 .",
+    "dev": "npx --yes serve -l 3000 ."
+  }
+}
