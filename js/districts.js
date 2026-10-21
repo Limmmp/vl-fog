@@ -19,7 +19,6 @@ export const DISTRICTS = [
   { id: "churkin",    name: "Чуркин",              lat: 43.0960, lon: 131.9100 },
   { id: "zmeinka",    name: "Змеинка",             lat: 43.0859, lon: 131.8939 },
   { id: "dalzavod",   name: "Дальзавод",           lat: 43.1130, lon: 131.9120 },
-  { id: "gniloy",     name: "Гнилой Угол",         lat: 43.1305, lon: 131.9080 },
   { id: "rechka1",    name: "Первая Речка",        lat: 43.1371, lon: 131.9027 },
   { id: "morgorodok", name: "Моргородок",          lat: 43.1477, lon: 131.9045 },
   { id: "rechka2",    name: "Вторая Речка",        lat: 43.1640, lon: 131.9080 },
