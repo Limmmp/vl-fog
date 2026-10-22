@@ -1,5 +1,23 @@
+<div align="center">
+
 # Туман Владивостока
 
+**Уличная игра на реальной карте: город скрыт туманом и открывается там, где ты прошёл ногами.**
+
+<img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black" alt="JavaScript"> <img src="https://img.shields.io/badge/Leaflet-199900?style=flat-square&logo=leaflet&logoColor=white" alt="Leaflet"> <img src="https://img.shields.io/badge/OpenStreetMap-7EBC6F?style=flat-square&logo=openstreetmap&logoColor=white" alt="OpenStreetMap"> <img src="https://img.shields.io/badge/PWA-5A0FC8?style=flat-square&logo=pwa&logoColor=white" alt="PWA"> <img src="https://img.shields.io/badge/Ollama-000000?style=flat-square&logo=ollama&logoColor=white" alt="Ollama">
+
+</div>
+
+<table>
+<tr>
+<td align="center" valign="top"><img src="docs/mobile.jpg" alt="Телефон" width="280"></td>
+<td align="center" valign="top"><img src="docs/map.jpg" alt="Десктоп" width="560"></td>
+</tr>
+</table>
+
+> Мобильная версия на Flutter с фоновым GPS: [vl-fog-mobile](https://github.com/Limmmp/vl-fog-mobile)
+
+<!-- header:end -->
 Уличная игра на реальной карте города: как в GTA, карта скрыта туманом и открывается там, где ты прошёл ногами. По городу разбросаны жёлтые метки, за которыми стоят заказчики с заданиями. Задания генерируются из реальных мест вокруг тебя: кафе, парков, причалов, памятников.
 
 ## Запуск
