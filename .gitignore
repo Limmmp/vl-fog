@@ -31,3 +31,6 @@ desktop.ini
 *.7z
 *.safetensors
 *.ckpt
+
+# контекст для Claude Code, только локально
+CLAUDE.md
